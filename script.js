@@ -1,43 +1,57 @@
-'use strict'
-const API_KEY ="SubiupgSxGo2DvlMscm2kQoLHCU9OmLMINU3isKG";
-const searchURL ="https://developer.nps.gov/api/v1/parks";
+'use strict';
+const apiKey ="cR6VNGBdOeMOPp1TV03ALE5ZWh98nApEqgsjJUbv";
+const searchURL ='https://developer.nps.gov/api/v1/parks';
 
 function formatQueryParams(params) {
-    const queryItems = Object.keys(params)
-    .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+  const queryItems = Object.keys(params).map
+  (key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`);
   return queryItems.join('&');
 }
 
-function displayResults(responseJson) {
-    console.log(responseJson);
-    $(`#results-list`).empty();
-    let html = "";
-    for (let i = 0; i < responseJson.data.length; i++) {
-        const parks = responseJson.data[i];
-        const description = parks.description;
-        const name = parks.name;
-        const url = parks.url;
-        const address = parks.directions;
 
-        html += `
-        <li><h3>${name}</h3>
-        <p>Description: ${description}</p>
-        <p>url:<a href="${url}">${url}</a></p>
-        <p> address: ${address}</p>
-        </li>`;
+function displayResults(responseJson) {
+    // console.log(responseJson);
+    $("#results-list").empty();
+    for (let i = 0; i < responseJson.data.length; i++){
+
+      $("#results-list").append(`<p>${responseJson.data[i].fullName}</p>
+
+      <p>${responseJson.data[i].description}</p>
+
+      <a href=" ${responseJson.data[i].url}">Visit Website</a>`);}
+
+    $("#results-list").removeClass("hidden");
+  };
+     
+
+function getNationalParks(query, limit = 10) {
+  const params = {
+    q: query, limit, 
+    api_key: apiKey,
+    
+  };
+
+  const queryString = formatQueryParams(params)
+  const url = searchURL + '?' + queryString;
+  console.log(url);
+
+
+  fetch(url)
+  .then(response => {
+    if (response.ok) {
+      return response.json();
     }
-    $("#results-list").html(html);
-    $("#results").removeClass("hidden");
+    throw new Error(response.statusText);
+  })
+  .then(responseJson => (displayResults(responseJson)))
+  .catch(err => { 
+    $('#js-error-message').text('Something went wrong: ${err.message}');
+  });
 }
 
-function getResults(){
-    maxResults-= 1;
-    const params = {
-        api_key: API_KEY, limit: maxResults, stateCode:query};
-        const queryString = formatQueryParams(params);
-        const url = searchURL + "?" + queryString;
-
-        fetch(url)
+  
+  
+ /* fetch(url)
     .then(response => {
       if (response.ok) {
         return response.json();
@@ -47,21 +61,16 @@ function getResults(){
     .then(responseJson => console.log(JSON.stringify(responseJson)))
     .catch(err => {
       $('#js-error-message').text(`Something went wrong: ${err.message}`);
-    });
-    }
-    function watchForm() {
-        $('.user-form').submit(function (event) {
-          event.preventDefault();
-          const state = $(this)
-          .find("#state")
-          .val();
-          const maxResults = $(this)
-          .find("#max")
-          .val();
-          getParkResults(state, maxResults);
-        });
-      }
-      
-      $(watchForm);
+    });*/
 
 
+function watchForm() {
+  $('form').submit(event => {
+    event.preventDefault();
+    const query = $('#state-name-input').val();
+    const limit = $('#number-input').val();
+    getNationalParks(query, limit);
+  });
+}
+
+$(watchForm);
