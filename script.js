@@ -31,7 +31,7 @@ function getNationalParks(query, limit = 10) {
     api_key: apiKey,
     
   };
-  if(!Number.parseFloat(limit) || Number.parseFloat(limit) <= 0){
+  if(!Number.parseFloat(limit) || Number.parseFloat(limit) >= 10){
     params.limit = 10;
   }
   const queryString = formatQueryParams(params)
